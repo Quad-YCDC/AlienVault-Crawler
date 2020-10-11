@@ -8,7 +8,7 @@ from tqdm import tqdm
 from tqdm import tqdm_notebook
 
 otx = OTXv2('d208825926256517b037657addb90894cf4b663c8ba9651a67d44493334a94a4')
-dbs = otx.getall(limit=1, max_page=3)
+dbs = otx.getall(limit=1, max_page=15)
 DateFormat = '%Y-%m-%d %H:%M:%S'
 
 conn = psycopg2.connect(host='localhost',
@@ -23,7 +23,7 @@ try:
     else:
         print('Database 연결 실패')
 except:
-    print("이외 Error")
+    print("Error")
 
 
 def reputation_service(id):
@@ -61,7 +61,7 @@ def duplication_remove():
     cur.execute(
         "DELETE FROM reputation_data WHERE id in (SELECT id FROM (SELECT id, row_number() OVER (PARTITION BY indicator ORDER BY id) as row_num FROM reputation_data) a WHERE a.row_num > 1);"
     )
-    return cur.fetchone is not None
+    return cur.fetchone
 
 
 try:
@@ -122,7 +122,7 @@ def reputation_data():
             cur.execute(
                 "INSERT INTO reputation_data (id, service, indicator_type, indicator, reg_date, cre_date) values (%s, %s, %s, %s, %s, %s)",
                 (indicator_data_idx, 1, idx_exists(
-                    j['type'])[0], j['indicator'], Date, j['created']))
+                    j['type']), j['indicator'], Date, j['created']))
             conn.commit()
             break
         indicator_data_idx += 1
@@ -131,7 +131,6 @@ def reputation_data():
 
 audit_log_start()
 indicator_type_idx = 1
-indicator_data_idx = 1
 for i in tqdm((dbs), ncols=100):
     # print(json.dumps(i['indicators'], indent=4, sort_keys=True))
     indicator_id = i['id']
@@ -165,8 +164,7 @@ for i in tqdm((dbs), ncols=100):
         print('Registed: %s' % Date)
         print('=========================')
         time.sleep(0.1)
-
-duplication_remove()
+        duplication_remove()
 audit_log_end()
 conn.commit()
 cur.close()
