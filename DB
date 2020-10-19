@@ -1,0 +1,51 @@
+CREATE TABLE IF NOT EXISTS reputation_indicator (
+  id SERIAL NOT NULL,
+  indicator_name TEXT NOT NULL,
+  PRIMARY KEY (id)
+);
+
+COMMENT ON TABLE reputation_indicator IS '평판 indicator 종류';
+COMMENT ON COLUMN reputation_indicator.indicator_name IS 'indicator 이름';
+
+CREATE TABLE IF NOT EXISTS reputation_service (
+  id SERIAL NOT NULL,
+  service_name TEXT NOT NULL,
+  PRIMARY KEY (id)
+);
+
+COMMENT ON TABLE reputation_service IS '평판 서비스 종류';
+COMMENT ON COLUMN reputation_service.service_name IS 'indicator 이름';
+
+CREATE TABLE IF NOT EXISTS reputation_audit (
+  id SERIAL NOT NULL,
+  audit_log TEXT NOT NULL,
+  log_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (id)
+);
+
+COMMENT ON TABLE reputation_audit IS 'Audit 로그';
+COMMENT ON COLUMN reputation_audit.audit_log IS '로그 내용';
+COMMENT ON COLUMN reputation_audit.log_date IS '로그 시각';
+
+CREATE TABLE IF NOT EXISTS reputation_data (
+  id SERIAL NOT NULL,
+  service INTEGER NOT NULL,
+  indicator_type INTEGER NOT NULL,
+  indicator TEXT NOT NULL,
+  reg_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  cre_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  CONSTRAINT reputation_data_fk1 FOREIGN KEY (service)
+    REFERENCES reputation_service (id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT reputation_data_fk2 FOREIGN KEY (indicator_type)
+    REFERENCES reputation_indicator (id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (id)
+);
+
+COMMENT ON TABLE reputation_data IS '평판 DB';
+COMMENT ON COLUMN reputation_data.service IS '서비스 이름';
+COMMENT ON COLUMN reputation_data.indicator_type IS 'indicator 종류';
+COMMENT ON COLUMN reputation_data.indicator IS 'indicator 내용';
+COMMENT ON COLUMN reputation_data.reg_date IS 'DB 등록 일시';
+COMMENT ON COLUMN reputation_data.cre_date IS '패턴 생성 일시';
