@@ -7,6 +7,7 @@ from datetime import datetime
 from pytz import timezone
 from tqdm import tqdm
 from config import config
+from termcolor import cprint
 
 DateFormat = '%Y-%m-%d %H:%M:%S'
 
@@ -14,7 +15,7 @@ DateFormat = '%Y-%m-%d %H:%M:%S'
 class GetApi:
     otx = OTXv2(
         'd208825926256517b037657addb90894cf4b663c8ba9651a67d44493334a94a4')
-    dbs = otx.getall(limit=10, max_page=1)
+    dbs = otx.getall(limit=1, max_page=1)
 
 
 class ConnectionDB:
@@ -46,7 +47,7 @@ class Service:
     def EnableService():
         try:
             if (Service.reputation_service('AlienVault')):
-                print('AlienVault 서비스가 활성화되었습니다.')
+                cprint('AlienVault 서비스가 활성화되었습니다.', 'grey', 'on_green')
             else:
                 print('AlienVault 서비스가 존재하지 않습니다. 생성을 시작합니다.')
                 ConnectionDB.cur.execute(
@@ -107,17 +108,17 @@ class Indicators:
         indicator_revision = i['revision']
         indicator_desc = i['description']
         indicators = i['indicators']
-        print('\n\033[95mName: %s' % i['name'])
-        print('\033[96mDesc: %s' % indicator_desc)
-        print('\033[91mRevision: %s' % i['revision'])
-        print('\033[94mTags: %s\033[0m' % i['tags'])
-        print('\033[90m---------------\033[0m')
+        cprint('\nName: %s' % i['name'], 'green')
+        cprint('Desc: %s' % indicator_desc, 'yellow')
+        cprint('Revision: %s' % i['revision'], 'cyan')
+        cprint('Tags: %s\033[0m' % i['tags'], 'blue')
+        cprint('-' * 100, 'magenta')
         for idx, j in enumerate(indicators, 1):
             try:
                 if (reputation_indicator(j['type'])):
-                    print('\n\033[92mPASS\033[0m')
+                    cprint('PASS', 'green')
                 else:
-                    print('\n\033[41m새로운 타입 발견\033[0m')
+                    cprint('새로운 타입 발견', 'white', 'on_red')
                     ConnectionDB.cur.execute(
                         "INSERT INTO reputation_indicator (id, indicator_name) values (default, %s)",
                         (j['type'], ))
@@ -126,11 +127,11 @@ class Indicators:
                 print(error)
             Date = datetime.now(timezone('Asia/Seoul')).strftime(DateFormat)
             print('ID: %d' % j['id'])
-            print('Indicator: %s' % j['indicator'])
-            print('Type: %s' % j['type'])
+            cprint('Indicator: %s' % j['indicator'], 'red')
+            cprint('Type: %s' % j['type'], 'red')
             print('Created: %s' % str(j['created'].replace('T', ' ')))
             print('Registed: %s' % Date)
-            print('=========================')
+            cprint('=' * 100, 'cyan')
             time.sleep(0.5)
             ConnectionDB.cur.execute(
                 "INSERT INTO reputation_data (id, service, indicator_type, indicator, reg_date, cre_date) values (default, %s, %s, %s, %s, %s)",
