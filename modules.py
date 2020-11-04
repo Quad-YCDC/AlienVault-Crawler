@@ -83,3 +83,17 @@ class Duplication:
         )
 
         return ConnectionDB.cur.fetchone
+
+
+class IndicatorService:
+    def reputation_indicator(indicator_name):
+        ConnectionDB.cur.execute(
+            "SELECT indicator_name from reputation_indicator where indicator_name = %s",
+            (indicator_name, ))
+        return ConnectionDB.cur.fetchone()
+
+    def idx_exists(name):
+        ConnectionDB.cur.execute(
+            "SELECT id FROM reputation_indicator WHERE indicator_name = %s",
+            (name, ))
+        return ConnectionDB.cur.fetchone()
