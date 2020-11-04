@@ -5,19 +5,12 @@ while 1:
     AuditLog.audit_log_start()
     Service.EnableService()
     for i in tqdm((GetApi.dbs), ncols=100):
-        indicator_id = i['id']
-        indicator_tags = i['tags']
-        indicator_modified = i['modified']
-        indicator_name = i['name']
-        indicator_revision = i['revision']
-        indicator_desc = i['description']
-        indicators = i['indicators']
         cprint('\nName: %s' % i['name'], 'green')
-        cprint('Desc: %s' % indicator_desc, 'yellow')
+        cprint('Desc: %s' % i['description'], 'yellow')
         cprint('Revision: %s' % i['revision'], 'cyan')
         cprint('Tags: %s\033[0m' % i['tags'], 'blue')
         cprint('-' * 100, 'magenta')
-        for idx, j in enumerate(indicators, 1):
+        for idx, j in enumerate(i['indicators'], 1):
             try:
                 if (IndicatorService.reputation_indicator(j['type'])):
                     cprint('PASS', 'green')
@@ -44,6 +37,5 @@ while 1:
                      j['type']), j['indicator'], Date, j['created']))
             ConnectionDB.conn.commit()
             Duplication.duplication_remove()
-
     AuditLog.audit_log_end()
     cprint('작업 종료', 'yellow')
