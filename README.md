@@ -4,6 +4,7 @@
 - [x] PSQL 연동
 - [x] Code Classification
 - [x] Import .ini File
+- [x] Code Splitting
 ---
 
 > ## Results
